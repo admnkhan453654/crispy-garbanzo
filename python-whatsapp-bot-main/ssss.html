@@ -6,73 +6,74 @@
     <link rel="icon" type="image/png" href="live.png">
     <title>AK by Ayan Khan</title>
     <style>
-        /* Modern reset focusing on cross-device compatibility */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #111;
-            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background-color: #0d0d0d;
+            font-family: 'Courier New', Courier, monospace;
+            position: fixed; 
             transition: background-color 0.5s ease;
         }
 
         .container {
             position: relative;
             width: 100%;
-            min-height: 100vh; /* Ensures it spans the screen but allows scrolling if virtual keyboards crowd it */
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
 
         .live-feed {
-            position: fixed; /* Ensures background stays fixed during mobile scrolling */
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
             z-index: 1;
-            opacity: 0.5;
-            pointer-events: none; /* Prevents background image drag issues */
-            transition: all 0.5s ease;
+            opacity: 0.4;
+            filter: grayscale(50%) contrast(120%);
+            transition: filter 0.5s ease, opacity 0.5s ease;
+        }
+
+        /* Scanline overlay */
+        .container::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
         }
 
         .overlay {
             position: relative;
-            z-index: 2;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 40px 30px;
-            border-radius: 12px;
-            width: 100%;
-            /* Scaled up max-width slightly for a better appearance on full-screen desktop monitors */
-            max-width: 380px; 
+            z-index: 3;
+            background: rgba(10, 10, 10, 0.95);
+            padding: 35px 25px;
+            border-radius: 8px;
+            width: 85%;
+            max-width: 340px;
             text-align: center;
-            border: 1px solid #333;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            box-sizing: border-box;
             transition: all 0.5s ease;
-        }
-
-        /* Responsive styling adjustment for very small mobile screens */
-        @media (max-width: 360px) {
-            .overlay {
-                padding: 25px 20px;
-            }
         }
 
         .overlay h2 {
             color: #00ff00;
             margin: 0 0 25px 0;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 1.5rem;
-            transition: color 0.5s ease;
+            letter-spacing: 3px;
+            font-size: 1.4rem;
+            text-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
         }
 
         .input-group {
@@ -82,179 +83,259 @@
 
         .input-group label {
             display: block;
-            color: #aaa;
-            font-size: 0.85rem;
-            margin-bottom: 8px;
+            color: #00ff00;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .input-group input {
             width: 100%;
-            padding: 14px;
-            border: 1px solid #444;
-            border-radius: 6px;
-            background-color: #222;
-            color: #fff;
+            padding: 12px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background-color: #141414;
+            color: #00ff00;
             font-size: 1rem;
+            font-family: inherit;
+            box-sizing: border-box;
             -webkit-appearance: none;
+            transition: all 0.3s ease;
         }
 
         .input-group input:focus {
             outline: none;
             border-color: #00ff00;
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
         }
 
         .message {
             margin-top: 15px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: bold;
             min-height: 20px;
+            letter-spacing: 1px;
         }
 
-        .success { color: #00ff00; }
-        .error { color: #ff3333; }
+        .success { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
+        .error { color: #ff3333; text-shadow: 0 0 5px #ff3333; }
 
         .login-btn {
             width: 100%;
             padding: 14px;
-            background-color: #00ff00;
-            color: #000;
-            border: none;
-            border-radius: 6px;
+            background-color: transparent;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
             font-size: 1rem;
             font-weight: bold;
+            font-family: inherit;
             cursor: pointer;
             margin-top: 10px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: background 0.2s ease, transform 0.1s ease;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .login-btn:hover {
+            background-color: rgba(0, 255, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
         }
 
         .login-btn:active {
-            background-color: #00cc00;
-            transform: scale(0.98);
+            background-color: #00ff00;
+            color: #000;
         }
 
-        /* --- System Locked Red Theme Styles --- */
+        /* --- ACCESS GRANTED STATE --- */
+        body.access-granted {
+            background-color: #001100;
+        }
+        body.access-granted .live-feed {
+            opacity: 0.7;
+            filter: grayscale(0%) contrast(110%) brightness(1.1);
+        }
+
+        /* --- LOCKED STATE STYLES --- */
         body.system-locked {
-            background-color: #400000;
+            background-color: #200000;
+        }
+        
+        .locked-ui {
+            border-color: #ff3333 !important;
+            box-shadow: 0 0 30px rgba(255, 51, 51, 0.4) !important;
+            background: rgba(20, 0, 0, 0.95) !important;
         }
 
-        body.system-locked .live-feed {
-            mix-blend-mode: color-burn;
-            opacity: 0.15;
+        .locked-ui h2 {
+            color: #ff3333 !important;
+            text-shadow: 0 0 8px rgba(255, 51, 51, 0.6) !important;
+            animation: blink 1.5s infinite;
         }
 
-        body.system-locked .overlay {
-            background: rgba(30, 0, 0, 0.95);
-            border-color: #ff3333;
-            box-shadow: 0 0 35px rgba(255, 0, 0, 0.5);
-        }
-
-        body.system-locked .overlay h2 {
+        .lockout-alert {
             color: #ff3333;
-            animation: blink 1s infinite alternate;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            text-shadow: 0 0 5px rgba(255, 51, 51, 0.3);
+        }
+
+        .countdown {
+            margin-top: 25px;
+            font-size: 1.5rem;
+            color: #ff3333;
+            text-shadow: 0 0 8px #ff3333;
+            font-weight: bold;
         }
 
         @keyframes blink {
-            from { opacity: 1; }
-            to { opacity: 0.4; }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <img src="AK.png" alt="Live Background Canvas" class="live-feed">
+        <img src="AK.png" alt="Live Image" class="live-feed" id="liveFeed">
 
-        <div class="overlay">
-            <h2 id="formTitle">System Access</h2>
+        <div class="overlay" id="systemOverlay">
+            <h2 id="systemHeader">System Access</h2>
             
             <form id="loginForm">
-                <div id="formFields">
-                    <div class="input-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" placeholder="Enter username" required autocomplete="off">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" placeholder="Enter password" required>
-                    </div>
-                    
-                    <button type="submit" class="login-btn">Access System</button>
+                <div class="input-group">
+                    <label for="username">User Identity</label>
+                    <input type="text" id="username" placeholder="// username" required autocomplete="off">
                 </div>
+                
+                <div class="input-group">
+                    <label for="password">Passkey</label>
+                    <input type="password" id="password" placeholder="// password" required>
+                </div>
+                
+                <button type="submit" id="submitBtn" class="login-btn">Initialize</button>
                 <div id="feedback" class="message"></div>
             </form>
         </div>
     </div>
 
     <script>
-    let failedAttempts = 0;
-    // Keep a reference to the original inner fields layout for easy reset later
-    const initialFieldsHTML = document.getElementById('formFields').innerHTML;
+    const maxAttempts = 3;
+    const cooldownDuration = 60; // Cooldown length in seconds
 
-    document.getElementById('loginForm').addEventListener('submit', function(event) {
-        event.preventDefault(); 
+    const overlay = document.getElementById('systemOverlay');
+    const header = document.getElementById('systemHeader');
+    const form = document.getElementById('loginForm');
+    const liveFeed = document.getElementById('liveFeed');
+    const feedback = document.getElementById('feedback');
+
+    // Handle Lockout rendering and active countdown
+    function triggerSystemLockout(secondsRemaining) {
+        document.body.classList.remove('access-granted');
+        document.body.classList.add('system-locked');
         
-        const userIn = document.getElementById('username')?.value;
-        const passIn = document.getElementById('password')?.value;
-        const feedback = document.getElementById('feedback');
-        const formTitle = document.getElementById('formTitle');
-        const formFields = document.getElementById('formFields');
+        liveFeed.style.filter = "grayscale(100%) contrast(80%) brightness(30%)";
+        overlay.classList.add('locked-ui');
+        header.innerText = "SYSTEM LOCKED";
 
-        if (userIn === "Ayan" && passIn === "Ak20223") {
-            feedback.className = "message success";
-            feedback.innerText = "ACCESS GRANTED. INITIALIZING...";
-            
-            setTimeout(function() {
-                window.location.href = "https://www.shrestha.live/";
-            }, 1500);
-            
-        } else {
-            failedAttempts++; 
-            
-            if (failedAttempts >= 3) {
-                document.body.classList.add('system-locked');
-                formTitle.innerText = "SYSTEM LOCKED";
-                
-                // Hide standard input controls
-                formFields.innerHTML = "";
-                
-                // Set up and start a 100-second lock countdown
-                let timeLeft = 100;
-                feedback.className = "message error";
-                feedback.style.fontSize = "1.2rem";
-                feedback.style.marginTop = "20px";
-                
-                function updateCountdown() {
-                    feedback.innerHTML = `MAX ATTEMPTS EXCEEDED.<br>ACCESS DENIED.<br><br><span style="font-size:1rem;">TRY AGAIN IN: ${timeLeft}s</span>`;
-                    
-                    if (timeLeft <= 0) {
-                        clearInterval(countdownInterval);
-                        // Reset the lock configuration back to operational state
-                        failedAttempts = 0;
-                        document.body.classList.remove('system-locked');
-                        formTitle.innerText = "System Access";
-                        feedback.style.fontSize = "";
-                        feedback.style.marginTop = "";
-                        feedback.className = "message";
-                        feedback.innerText = "";
-                        formFields.innerHTML = initialFieldsHTML;
-                    }
-                    timeLeft--;
-                }
-                
-                updateCountdown();
-                let countdownInterval = setInterval(updateCountdown, 1000);
+        form.innerHTML = `
+            <div class="lockout-alert">
+                MAX ATTEMPTS EXCEEDED.<br>
+                ACCESS TEMPORARILY FROZEN.<br><br>
+                <small style="color: #884444;">Security protocols active. IP logged.</small>
+            </div>
+            <div class="countdown" id="timer">00:00</div>
+        `;
 
+        startLockdownTimer(secondsRemaining);
+    }
+
+    // Interval tick engine
+    function startLockdownTimer(duration) {
+        let timeRemaining = duration;
+        const timerElement = document.getElementById('timer');
+
+        const countdownInterval = setInterval(() => {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            
+            timerElement.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            // Save the exact timestamp when lock breaks to mitigate page refreshes
+            const unlockTimestamp = Date.now() + (timeRemaining * 1000);
+            localStorage.setItem('unlockTimestamp', unlockTimestamp.toString());
+
+            timeRemaining--;
+
+            if (timeRemaining < 0) {
+                clearInterval(countdownInterval);
+                localStorage.removeItem('unlockTimestamp');
+                localStorage.setItem('attemptsCount', '0');
+                location.reload(); // Refresh to restore standard login form setup
+            }
+        }, 1000);
+    }
+
+    // Verification check executed immediately upon page lifecycle startup
+    function checkStatus() {
+        const unlockTimestamp = localStorage.getItem('unlockTimestamp');
+        if (unlockTimestamp) {
+            const now = Date.now();
+            const timeRemaining = Math.ceil((parseInt(unlockTimestamp) - now) / 1000);
+
+            if (timeRemaining > 0) {
+                triggerSystemLockout(timeRemaining);
+                return true;
             } else {
-                let remaining = 3 - failedAttempts;
-                feedback.className = "message error";
-                feedback.innerText = `ACCESS DENIED. INVALID CREDENTIALS. (${remaining} ATTEMPTS LEFT)`;
+                localStorage.removeItem('unlockTimestamp');
+                localStorage.setItem('attemptsCount', '0');
             }
         }
-    });
+        return false;
+    }
+
+    // Form logic loop execution condition
+    if (!checkStatus()) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); 
+            
+            const userIn = document.getElementById('username').value;
+            const passIn = document.getElementById('password').value;
+
+            if (userIn === "Ayan" && passIn === "Ak20223") {
+                document.body.classList.add('access-granted');
+                feedback.className = "message success";
+                feedback.innerText = "ACCESS GRANTED. INITIALIZING...";
+                
+                localStorage.setItem('attemptsCount', '0');
+                localStorage.removeItem('unlockTimestamp');
+                
+                document.getElementById('username').disabled = true;
+                document.getElementById('password').disabled = true;
+                document.getElementById('submitBtn').disabled = true;
+                
+                setTimeout(function() {
+                    window.location.href = "https://www.shrestha.live/";
+                }, 1500);
+                
+            } else {
+                let attempts = parseInt(localStorage.getItem('attemptsCount') || '0');
+                attempts++;
+                localStorage.setItem('attemptsCount', attempts.toString());
+                
+                if (attempts >= maxAttempts) {
+                    triggerSystemLockout(cooldownDuration);
+                } else {
+                    feedback.className = "message error";
+                    const remaining = maxAttempts - attempts;
+                    feedback.innerText = `ACCESS DENIED. INVALID CREDENTIALS. (${remaining} ATTEMPTS REMAINING)`;
+                }
+            }
+        });
+    }
     </script>
 </body>
 </html>

@@ -1,0 +1,19 @@
+<input type="file" id="image">
+<button onclick="uploadImage()">Upload</button>
+
+<script>
+function uploadImage(){
+  let file = document.getElementById("image").files[0];
+
+  let reader = new FileReader();
+
+  reader.onload = function(e){
+    google.script.run.saveImage(
+      e.target.result,
+      file.name
+    );
+  };
+
+  reader.readAsDataURL(file);
+}
+</script>
